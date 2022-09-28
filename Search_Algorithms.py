@@ -241,6 +241,57 @@ def astar_search(graph, start, goal):
                     frontier.append(new_element)
 
     return None, None
+def astar_search1(graph, start, goal):
+
+    path = []
+    explored_nodes = list()
+
+    # Edge case check
+    if start == goal:
+        return path, explored_nodes
+
+    path.append(start)
+    path_cost = get_geographical_heuristic(start, goal)
+    # Priority Queue to keep sorted distance travelled till now
+    frontier = [(path_cost, path)]
+    while len(frontier) > 0:
+        # pop a node from the queue
+        path_cost_till_now, path_till_now = pop_frontier(frontier)
+        current_node = path_till_now[-1]
+        path_cost_till_now = path_cost_till_now - get_geographical_heuristic(current_node, goal)
+        explored_nodes.append(current_node)
+        # test goal condition
+        if current_node == goal:
+            return path_till_now, explored_nodes
+
+        neighbours = graph[current_node]
+
+        neighbours_list_int = [int(n) for n in neighbours]
+        neighbours_list_int.sort(reverse=False)
+        neighbours_list_str = [str(n) for n in neighbours_list_int]
+
+        for neighbour in neighbours_list_str:
+            path_to_neighbour = path_till_now.copy()
+            path_to_neighbour.append(neighbour)
+
+            # extra_cost = graph.get_edge_weight(current_node, neighbour)
+            extra_cost = 1
+            neighbour_cost = extra_cost + path_cost_till_now + get_geographical_heuristic(neighbour, goal)
+            new_element = (neighbour_cost, path_to_neighbour)
+
+            is_there, indexx, neighbour_old_cost, _ = get_frontier_params_new(neighbour, frontier)
+
+            if (neighbour not in explored_nodes) and not is_there:
+                frontier.append(new_element)
+
+            # If the neighbour is in frontier but there exists a
+            # costlier path to this neighbour, remove that costly path
+            elif is_there:
+                if neighbour_old_cost > neighbour_cost:
+                    frontier.pop(indexx)
+                    frontier.append(new_element)
+
+    return None, None
 
 
 def pop_frontier(frontier):
@@ -285,21 +336,21 @@ def get_frontier_params(node, frontier):
 
 
 def get_manhattan_heuristic(node, goal):
-    i, j = divmod(int(node), 4)
-    i_goal, j_goal = divmod(int(goal), 4)
+    i, j = divmod(int(node), 8)
+    i_goal, j_goal = divmod(int(goal), 8)
     i_delta = abs(i - i_goal)
     j_delta = abs(j - j_goal)
 
     manhattan_dist = i_delta + j_delta
     return manhattan_dist
-#def get_geographical_heuristic(node, goal):
- #   i, j = divmod(int(node), 8)
-  #  i_goal, j_goal = divmod(int(goal), 8)
-   # i_delta = abs(i - i_goal)**2
-    #j_delta = abs(j - j_goal)**2
+def get_geographical_heuristic(node, goal):
+    i, j = divmod(int(node), 8)
+    i_goal, j_goal = divmod(int(goal), 8)
+    i_delta = abs(i - i_goal)**2
+    j_delta = abs(j - j_goal)**2
     
-    #geographical_dist = (i_delta + j_delta)**0.5
-    #return geographical_dist
+    geographical_dist = (i_delta + j_delta)**0.5
+    return geographical_dist
 
 if __name__ == '__main__':
     graph_neighbours = generate_graph()
@@ -311,8 +362,14 @@ if __name__ == '__main__':
     # print(len(explored_ucs))
     # print()
 
-    print("============ AStar Search ================")
-    path_astar, explored_astar = astar_search(graph_neighbours, '0', '27')
+    print("============ AStar Search manhattan================")
+    path_astar1, explored_astar1 = astar_search(graph_neighbours, '0', '61')
+    print("Path_astar:", path_astar1)
+    print("Explored Nodes A Star: ", explored_astar1)
+    print(len(explored_astar1))
+    print()
+    print("============ AStar Search geographical ================")
+    path_astar, explored_astar = astar_search1(graph_neighbours, '0', '61')
     print("Path_astar:", path_astar)
     print("Explored Nodes A Star: ", explored_astar)
     print(len(explored_astar))
