@@ -285,8 +285,8 @@ def get_frontier_params(node, frontier):
 
 
 def get_manhattan_heuristic(node, goal):
-    i, j = divmod(int(node), 8)
-    i_goal, j_goal = divmod(int(goal), 8)
+    i, j = divmod(int(node), 4)
+    i_goal, j_goal = divmod(int(goal), 4)
     i_delta = abs(i - i_goal)
     j_delta = abs(j - j_goal)
 
